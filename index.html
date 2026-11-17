@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F1EC;color:#16150F;font-family:'Geist',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#16150F}
+a:hover{color:#D23F22}
+input,select,button,textarea{font:inherit;color:inherit}
+[data-scroller]::-webkit-scrollbar{display:none}
+@media (max-width:760px){
+  [data-m=shell]{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto minmax(0,1fr)!important}
+  [data-m=side]{flex-direction:row!important;padding:8px 12px!important;border-right:0!important;border-bottom:1px solid #E2DED5!important;overflow-x:auto!important;scrollbar-width:none}
+  [data-m=side]::-webkit-scrollbar{display:none}
+  [data-m=nav]{flex-direction:row!important;gap:4px!important}
+  [data-m=nav] button{white-space:nowrap;height:36px!important}
+  [data-m=head]{padding:12px 16px!important}
+  [data-m=head]>div:nth-child(2){display:none!important}
+  [data-m=content]{padding:20px 16px 48px!important;gap:28px!important}
+  [data-m=hero-text]{padding:24px!important}
+  [data-m=player-wrap]{padding:12px!important}
+  [data-m=player]{grid-template-columns:minmax(0,1fr)!important}
+}
+</style>
+</helmet>
+<div data-m="shell" style="display:grid;grid-template-columns:minmax(200px,248px) minmax(0,1fr);height:100vh;overflow:hidden">
+
+  <aside data-m="side" style="display:flex;flex-direction:column;gap:24px;padding:24px 16px;border-right:1px solid #E2DED5;background:#F3F1EC;overflow-y:auto">
+
+
+    <nav data-m="nav" style="display:flex;flex-direction:column;gap:2px">
+      <button onClick="{{ goHome }}" style="display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border:0;border-radius:8px;background:{{ navHomeBg }};cursor:pointer;font-size:14px;font-weight:500;text-align:left">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>
+        Home
+      </button>
+      <button onClick="{{ goProfile }}" style="display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border:0;border-radius:8px;background:{{ navProfileBg }};cursor:pointer;font-size:14px;font-weight:500;text-align:left">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"></path></svg>
+        Profile
+      </button>
+      <button onClick="{{ goLibrary }}" style="display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border:0;border-radius:8px;background:{{ navLibBg }};cursor:pointer;font-size:14px;font-weight:500;text-align:left">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m10 9 5 3-5 3z"></path></svg>
+        <span style="flex:1">Library</span>
+        <span style="font-family:'Geist Mono';font-size:12px;color:#6B6860">{{ activeCount }}</span>
+      </button>
+      <button onClick="{{ goDeleted }}" style="display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border:0;border-radius:8px;background:{{ navDelBg }};cursor:pointer;font-size:14px;font-weight:500;text-align:left">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"></path></svg>
+        <span style="flex:1">Recently deleted</span>
+        <span style="font-family:'Geist Mono';font-size:12px;color:#6B6860">{{ deletedCount }}</span>
+      </button>
+    </nav>
+
+    
+
+    
+  </aside>
+
+  <main style="overflow-y:auto;min-width:0">
+    <header data-m="head" style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:16px 32px;background:rgba(243,241,236,.92);backdrop-filter:blur(10px);border-bottom:1px solid #E2DED5">
+      <div style="flex:1;min-width:0;max-width:520px;display:flex;align-items:center;gap:10px;height:42px;padding:0 14px;border:1px solid #E2DED5;border-radius:10px;background:#fff">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6B6860" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search by title or client" style="flex:1;min-width:0;border:0;outline:none;background:transparent;font-size:14px">
+      </div>
+      <div style="flex:1"></div>
+      <div style="position:relative;flex:none">
+        <button onClick="{{ toggleCreate }}" style="display:flex;align-items:center;gap:8px;height:42px;padding:0 18px;border:0;border-radius:10px;background:#16150F;color:#fff;cursor:pointer;font-size:14px;font-weight:600;white-space:nowrap" style-hover="background:#D23F22">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+          Create
+        </button>
+        <sc-if value="{{ createOpen }}">
+          <div onClick="{{ stop }}" style="position:absolute;right:0;top:50px;z-index:20;width:290px;display:flex;flex-direction:column;padding:6px;border-radius:12px;background:#fff;border:1px solid #E2DED5;box-shadow:0 16px 40px rgba(22,21,15,.16)">
+            <button onClick="{{ createUpload }}" style="display:flex;align-items:center;gap:12px;padding:10px;border:0;border-radius:8px;background:transparent;cursor:pointer;text-align:left" style-hover="background:#F3F1EC">
+              <span style="flex:none;width:36px;height:36px;border-radius:9px;background:#F3F1EC;display:grid;place-items:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"></path></svg></span>
+              <span style="display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:600">Upload video</span><span style="font-size:12px;color:#6B6860">Files from computer</span></span>
+            </button>
+            <button onClick="{{ createLink }}" style="display:flex;align-items:center;gap:12px;padding:10px;border:0;border-radius:8px;background:transparent;cursor:pointer;text-align:left" style-hover="background:#F3F1EC">
+              <span style="flex:none;width:36px;height:36px;border-radius:9px;background:#F3F1EC;display:grid;place-items:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg></span>
+              <span style="display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:600">Add from link</span><span style="font-size:12px;color:#6B6860">Direct .mp4 / hosted URL</span></span>
+            </button>
+            <div style="height:1px;background:#E2DED5;margin:4px 6px"></div>
+            <button onClick="{{ createProfile }}" style="display:flex;align-items:center;gap:12px;padding:10px;border:0;border-radius:8px;background:transparent;cursor:pointer;text-align:left" style-hover="background:#F3F1EC">
+              <span style="flex:none;width:36px;height:36px;border-radius:9px;background:#F3F1EC;display:grid;place-items:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"></path></svg></span>
+              <span style="display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:600">Profile details</span><span style="font-size:12px;color:#6B6860">Photo, cover, bio, contacts, socials</span></span>
+            </button>
+            <div style="height:1px;background:#E2DED5;margin:4px 6px"></div>
+            <a href="{{ clientHref }}" target="_blank" style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;text-decoration:none;color:#16150F" style-hover="background:#F3F1EC">
+              <span style="flex:none;width:36px;height:36px;border-radius:9px;background:#F3F1EC;display:grid;place-items:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
+              <span style="display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:600">Preview client view</span><span style="font-size:12px;color:#6B6860">Videos + profile only</span></span>
+            </a>
+            <button onClick="{{ publish }}" style="display:flex;align-items:center;gap:12px;padding:10px;border:0;border-radius:8px;background:transparent;cursor:pointer;text-align:left" style-hover="background:#F3F1EC">
+              <span style="flex:none;width:36px;height:36px;border-radius:9px;background:#16150F;color:#fff;display:grid;place-items:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"></path></svg></span>
+              <span style="display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:600">Publish site (.zip)</span><span style="font-size:12px;color:#6B6860">Videos + profile, ready for Netlify</span></span>
+            </button>
+          </div>
+        </sc-if>
+      </div>
+      <button onClick="{{ goProfile }}" title="Profile" style="flex:none;width:42px;height:42px;border-radius:50%;border:0;padding:0;overflow:hidden;cursor:pointer;background:#16150F;color:#F3F1EC;display:grid;place-items:center;font-family:'Bricolage Grotesque';font-weight:700;font-size:15px">
+        <sc-if value="{{ profile.hasAvatar }}"><img src="{{ profile.avatar }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+        <sc-if value="{{ profile.noAvatar }}"><span>{{ profile.initials }}</span></sc-if>
+      </button>
+    </header>
+
+    <div data-m="content" style="display:flex;flex-direction:column;gap:40px;padding:32px 32px 64px;max-width:1600px">
+
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ hasHero }}" hint-placeholder-val="{{ false }}">
+          <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:0;border-radius:16px;overflow:hidden;background:#1A1916;color:#F3F1EC">
+            <div data-m="hero-text" style="display:flex;flex-direction:column;justify-content:flex-end;gap:18px;padding:40px">
+              <span style="font-family:'Geist Mono';font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#F08C74">Featured</span>
+              <h1 style="margin:0;font-family:'Bricolage Grotesque';font-weight:700;font-size:clamp(32px,3.6vw,52px);line-height:1.02;letter-spacing:-0.025em;text-wrap:balance">{{ hero.title }}</h1>
+              <span style="font-size:15px;color:#BDB8AD">{{ hero.metaFull }}</span>
+              <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap">
+                <button onClick="{{ hero.onPlay }}" style="display:flex;align-items:center;gap:10px;height:46px;padding:0 22px;border:0;border-radius:23px;background:#F3F1EC;color:#16150F;cursor:pointer;font-size:15px;font-weight:600" style-hover="background:#fff">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4v16l14-8z"></path></svg>
+                  Play
+                </button>
+                <button onClick="{{ goLibrary }}" style="height:46px;padding:0 22px;border:1px solid #3A3832;border-radius:23px;background:transparent;color:#F3F1EC;cursor:pointer;font-size:15px;font-weight:500;white-space:nowrap" style-hover="border-color:#F3F1EC">View all work</button>
+              </div>
+            </div>
+            <div onClick="{{ hero.onPlay }}" style="position:relative;aspect-ratio:16/9;cursor:pointer;background:#0F0E0C">
+              <sc-if value="{{ hero.hasThumb }}"><img src="{{ hero.thumb }}" ref="{{ hero.thumbRef }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+              <div style="position:absolute;inset:0;display:grid;place-items:center">
+                <div style="width:68px;height:68px;border-radius:50%;background:rgba(243,241,236,.94);display:grid;place-items:center;color:#16150F"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"></path></svg></div>
+              </div>
+            </div>
+          </section>
+        </sc-if>
+
+        <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+          <button onClick="{{ openUpload }}" style="display:flex;align-items:center;gap:14px;padding:18px;border:1px solid #E2DED5;border-radius:12px;background:#fff;cursor:pointer;text-align:left" style-hover="border-color:#16150F">
+            <span style="width:40px;height:40px;border-radius:10px;background:#F3F1EC;display:grid;place-items:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"></path></svg></span>
+            <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">Upload</span><span style="font-size:13px;color:#6B6860">Video files from computer</span></span>
+          </button>
+          <button onClick="{{ openLink }}" style="display:flex;align-items:center;gap:14px;padding:18px;border:1px solid #E2DED5;border-radius:12px;background:#fff;cursor:pointer;text-align:left" style-hover="border-color:#16150F">
+            <span style="width:40px;height:40px;border-radius:10px;background:#F3F1EC;display:grid;place-items:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg></span>
+            <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">Add from link</span><span style="font-size:13px;color:#6B6860">Direct .mp4 / hosted URL</span></span>
+          </button>
+          <button onClick="{{ goLibrary }}" style="display:flex;align-items:center;gap:14px;padding:18px;border:1px solid #E2DED5;border-radius:12px;background:#fff;cursor:pointer;text-align:left" style-hover="border-color:#16150F">
+            <span style="width:40px;height:40px;border-radius:10px;background:#F3F1EC;display:grid;place-items:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg></span>
+            <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">Browse library</span><span style="font-size:13px;color:#6B6860">{{ activeCount }} videos · {{ clientCount }} clients</span></span>
+          </button>
+        </section>
+
+        <sc-for list="{{ rows }}" as="row" hint-placeholder-count="2">
+          <section data-row="1" style="display:flex;flex-direction:column;gap:16px;min-width:0">
+            <div style="display:flex;align-items:center;gap:12px">
+              <h2 style="margin:0;font-family:'Bricolage Grotesque';font-weight:700;font-size:24px;letter-spacing:-0.015em">{{ row.title }}</h2>
+              <span style="font-family:'Geist Mono';font-size:12px;color:#6B6860">{{ row.count }}</span>
+              <div style="flex:1"></div>
+              <button onClick="{{ row.onSeeAll }}" style="border:0;background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:#16150F;text-decoration:underline;text-underline-offset:3px">See all</button>
+              <button data-dir="-1" onClick="{{ scrollRow }}" style="width:34px;height:34px;border:1px solid #E2DED5;border-radius:8px;background:#fff;cursor:pointer;display:grid;place-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m15 6-6 6 6 6"></path></svg></button>
+              <button data-dir="1" onClick="{{ scrollRow }}" style="width:34px;height:34px;border:1px solid #E2DED5;border-radius:8px;background:#fff;cursor:pointer;display:grid;place-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m9 6 6 6-6 6"></path></svg></button>
+            </div>
+            <div data-scroller="1" style="display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding-bottom:4px">
+              <sc-for list="{{ row.items }}" as="v" hint-placeholder-count="4">
+                <div style="flex:0 0 300px;scroll-snap-align:start;display:flex;flex-direction:column;gap:10px;position:relative;min-width:0">
+                  <div onClick="{{ v.onPlay }}" onMouseEnter="{{ v.onEnter }}" onMouseLeave="{{ v.onLeave }}" style="position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#1A1916;cursor:pointer">
+                    <sc-if value="{{ v.hasThumb }}"><img src="{{ v.thumb }}" ref="{{ v.thumbRef }}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                    <sc-if value="{{ v.noThumb }}"><div style="position:absolute;inset:0;display:grid;place-items:center;color:#8A867C;font-family:'Geist Mono';font-size:12px;letter-spacing:.08em;text-transform:uppercase">{{ v.client }}</div></sc-if>
+                    <sc-if value="{{ v.showPreview }}"><video src="{{ v.src }}" ref="{{ mutedRef }}" loop="{{ true }}" playsInline="{{ true }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video></sc-if>
+                    <span style="position:absolute;right:8px;bottom:8px;padding:3px 7px;border-radius:5px;background:rgba(15,14,12,.78);color:#fff;font-family:'Geist Mono';font-size:12px">{{ v.durLabel }}</span>
+                  </div>
+                  <div style="display:flex;gap:8px;align-items:flex-start;position:relative">
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+                      <span style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ v.title }}</span>
+                      <span style="font-size:13px;color:#6B6860;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ v.metaLabel }}</span>
+                    </div>
+                    <button onClick="{{ v.onMenu }}" style="width:30px;height:30px;border:0;border-radius:6px;background:transparent;cursor:pointer;display:grid;place-items:center;flex:none" style-hover="background:#E8E5DD"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"></circle><circle cx="12" cy="12" r="1.8"></circle><circle cx="12" cy="19" r="1.8"></circle></svg></button>
+                    <sc-if value="{{ v.menuOpen }}">
+                      <div style="position:absolute;right:0;top:34px;z-index:10;min-width:180px;display:flex;flex-direction:column;padding:6px;border-radius:10px;background:#fff;border:1px solid #E2DED5;box-shadow:0 12px 32px rgba(22,21,15,.14)">
+                        <button onClick="{{ v.onEdit }}" style="height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;cursor:pointer;font-size:14px;text-align:left" style-hover="background:#F3F1EC">Edit details</button>
+                        <button onClick="{{ v.onFeature }}" style="height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;cursor:pointer;font-size:14px;text-align:left" style-hover="background:#F3F1EC">Set as featured</button>
+                        <a href="{{ v.src }}" download="{{ v.fileName }}" style="height:34px;padding:0 10px;border-radius:6px;display:flex;align-items:center;font-size:14px;text-decoration:none;color:#16150F" style-hover="background:#F3F1EC">Download</a>
+                        <button onClick="{{ v.onDelete }}" style="height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;cursor:pointer;font-size:14px;text-align:left;color:#C2351B" style-hover="background:#FBEAE5">Delete</button>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+        </sc-for>
+      </sc-if>
+
+      <sc-if value="{{ showGrid }}">
+        <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+        <sc-if value="{{ isProfile }}">
+          <aside style="order:2;flex:1 1 280px;max-width:380px;position:sticky;top:98px;display:flex;flex-direction:column;border-radius:16px;background:#fff;border:1px solid #E2DED5;overflow:hidden">
+            <div style="position:relative;height:110px;background:#1A1916">
+              <sc-if value="{{ profile.hasCover }}"><img src="{{ profile.coverSrc }}" ref="{{ hideOnError }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:18px;padding:0 24px 24px">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:-48px;position:relative;z-index:1">
+              <div style="width:104px;height:104px;border-radius:50%;overflow:hidden;background:#16150F;color:#F3F1EC;display:grid;place-items:center;font-family:'Bricolage Grotesque';font-weight:700;font-size:34px;flex:none;border:4px solid #fff">
+                <sc-if value="{{ profile.hasAvatar }}"><img src="{{ profile.avatar }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+                <sc-if value="{{ profile.noAvatar }}"><span>{{ profile.initials }}</span></sc-if>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button onClick="{{ shareProfile }}" title="Copy profile details" style="width:36px;height:36px;border:1px solid #E2DED5;border-radius:9px;background:#fff;cursor:pointer;display:grid;place-items:center" style-hover="border-color:#16150F"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg></button>
+                <button onClick="{{ editProfile }}" style="height:36px;padding:0 14px;border:0;border-radius:9px;background:#16150F;color:#fff;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap" style-hover="background:#D23F22">Edit profile</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <h1 style="margin:0;font-family:'Bricolage Grotesque';font-weight:700;font-size:28px;letter-spacing:-0.02em;line-height:1.1">{{ profile.displayName }}</h1>
+              <sc-if value="{{ profile.pronouns }}"><span style="font-size:14px;color:#6B6860">{{ profile.pronouns }}</span></sc-if>
+              <sc-if value="{{ profile.headline }}"><span style="font-size:15px;font-weight:500;margin-top:4px">{{ profile.headline }}</span></sc-if>
+            </div>
+            <sc-if value="{{ profile.location }}">
+              <div style="display:flex;align-items:center;gap:10px;font-size:14px">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+                {{ profile.location }}
+              </div>
+            </sc-if>
+            <sc-if value="{{ profile.bio }}"><p style="margin:0;font-size:15px;line-height:1.55;white-space:pre-line;text-wrap:pretty">{{ profile.bio }}</p></sc-if>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ contacts }}" as="c" hint-placeholder-count="3">
+                <a href="{{ c.href }}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;font-size:14px;text-decoration:none;min-width:0">
+                  <span style="flex:none;width:20px;height:20px;display:grid;place-items:center">
+                    <sc-if value="{{ c.isMail }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg></sc-if>
+                    <sc-if value="{{ c.isPhone }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"></path></svg></sc-if>
+                    <sc-if value="{{ c.isIg }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="currentColor"></circle></svg></sc-if>
+                    <sc-if value="{{ c.isIn }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"></path></svg></sc-if>
+                    <sc-if value="{{ c.isYt }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"></rect><path d="m10 9 5 3-5 3z"></path></svg></sc-if>
+                    <sc-if value="{{ c.isWeb }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg></sc-if>
+                  </span>
+                  <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.label }}</span>
+                </a>
+              </sc-for>
+              <button onClick="{{ editProfile }}" style="display:flex;align-items:center;gap:12px;padding:0;border:0;background:transparent;cursor:pointer;font-size:14px;color:#6B6860;text-align:left" style-hover="color:#16150F">
+                <span style="width:20px;display:grid;place-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span>
+                Add details or links
+              </button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding-top:16px;border-top:1px solid #E2DED5">
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:'Bricolage Grotesque';font-weight:700;font-size:24px">{{ activeCount }}</span><span style="font-size:12px;color:#6B6860">Videos</span></div>
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:'Bricolage Grotesque';font-weight:700;font-size:24px">{{ clientCount }}</span><span style="font-size:12px;color:#6B6860">Clients</span></div>
+            </div>
+            </div>
+          </aside>
+        </sc-if>
+        <section style="order:1;flex:999 1 360px;min-width:0;display:flex;flex-direction:column;gap:20px">
+          <sc-if value="{{ notProfile }}">
+          <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+            <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:4px">
+              <h1 style="margin:0;font-family:'Bricolage Grotesque';font-weight:700;font-size:40px;letter-spacing:-0.025em">{{ gridTitle }}</h1>
+              <span style="font-size:14px;color:#6B6860">{{ gridSub }}</span>
+            </div>
+            <sc-if value="{{ isLibrary }}">
+              <select value="{{ sort }}" onChange="{{ onSort }}" style="height:38px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;background:#fff;font-size:14px;cursor:pointer">
+                <option value="new">Newest first</option>
+                <option value="old">Oldest first</option>
+                <option value="az">Title A–Z</option>
+                <option value="long">Longest first</option>
+              </select>
+            </sc-if>
+          </div>
+          </sc-if>
+          <sc-if value="{{ gridEmpty }}">
+            <div style="padding:64px 24px;border:1px dashed #D5D0C5;border-radius:14px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px">
+              <span style="font-family:'Bricolage Grotesque';font-weight:700;font-size:20px">{{ emptyTitle }}</span>
+              <span style="font-size:14px;color:#6B6860">{{ emptySub }}</span>
+            </div>
+          </sc-if>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px 20px">
+            <sc-for list="{{ gridItems }}" as="v" hint-placeholder-count="8">
+              <div style="display:flex;flex-direction:column;gap:10px;position:relative;min-width:0">
+                <div onClick="{{ v.onPlay }}" onMouseEnter="{{ v.onEnter }}" onMouseLeave="{{ v.onLeave }}" style="position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#1A1916;cursor:pointer">
+                  <sc-if value="{{ v.hasThumb }}"><img src="{{ v.thumb }}" ref="{{ v.thumbRef }}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ v.thumbOpacity }}"></sc-if>
+                  <sc-if value="{{ v.noThumb }}"><div style="position:absolute;inset:0;display:grid;place-items:center;color:#8A867C;font-family:'Geist Mono';font-size:12px;letter-spacing:.08em;text-transform:uppercase">{{ v.client }}</div></sc-if>
+                  <sc-if value="{{ v.showPreview }}"><video src="{{ v.src }}" ref="{{ mutedRef }}" loop="{{ true }}" playsInline="{{ true }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video></sc-if>
+                  <span style="position:absolute;right:8px;bottom:8px;padding:3px 7px;border-radius:5px;background:rgba(15,14,12,.78);color:#fff;font-family:'Geist Mono';font-size:12px">{{ v.durLabel }}</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:flex-start;position:relative">
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+                    <span style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ v.title }}</span>
+                    <span style="font-size:13px;color:#6B6860;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ v.metaLabel }}</span>
+                  </div>
+                  <button onClick="{{ v.onMenu }}" style="width:30px;height:30px;border:0;border-radius:6px;background:transparent;cursor:pointer;display:grid;place-items:center;flex:none" style-hover="background:#E8E5DD"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"></circle><circle cx="12" cy="12" r="1.8"></circle><circle cx="12" cy="19" r="1.8"></circle></svg></button>
+                  <sc-if value="{{ v.menuOpen }}">
+                    <div style="position:absolute;right:0;top:34px;z-index:10;min-width:180px;display:flex;flex-direction:column;padding:6px;border-radius:10px;background:#fff;border:1px solid #E2DED5;box-shadow:0 12px 32px rgba(22,21,15,.14)">
+                      <sc-if value="{{ v.notDeleted }}">
+                        <button onClick="{{ v.onEdit }}" style="height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;cursor:pointer;font-size:14px;text-align:left" style-hover="background:#F3F1EC">Edit details</button>
+                        <button onClick="{{ v.onFeature }}" style="height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;cursor:pointer;font-size:14px;text-align:left" style-hover="background:#F3F1EC">Set as featured</button>
+                        <a href="{{ v.src }}" download="{{ v.fileName }}" style="height:34px;padding:0 10px;border-radius:6px;display:flex;align-items:center;font-size:14px;text-decoration:none;color:#16150F" style-hover="background:#F3F1EC">Download</a>
+                        <button onClick="{{ v.onDelete }}" style="height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;cursor:pointer;font-size:14px;text-align:left;color:#C2351B" style-hover="background:#FBEAE5">Delete</button>
+                      </sc-if>
+                      <sc-if value="{{ v.isDeleted }}">
+                        <button onClick="{{ v.onRestore }}" style="height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;cursor:pointer;font-size:14px;text-align:left" style-hover="background:#F3F1EC">Restore</button>
+                        <button onClick="{{ v.onPurge }}" style="height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;cursor:pointer;font-size:14px;text-align:left;color:#C2351B" style-hover="background:#FBEAE5">Delete forever</button>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+        </div>
+      </sc-if>
+    </div>
+  </main>
+</div>
+
+<sc-if value="{{ playerOpen }}">
+  <div data-m="player-wrap" onClick="{{ closePlayer }}" style="position:fixed;inset:0;z-index:50;background:rgba(12,11,9,.94);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:28px">
+    <div data-m="player" onClick="{{ stop }}" style="width:100%;max-width:1480px;display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,320px);gap:28px;color:#F3F1EC">
+      <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+        <video src="{{ player.src }}" poster="{{ player.thumb }}" autoPlay="{{ true }}" controls="{{ true }}" playsInline="{{ true }}" preload="auto" onEnded="{{ onEnded }}" style="width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;display:block"></video>
+        <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+          <div style="flex:1;min-width:240px;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'Geist Mono';font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#F08C74">{{ player.client }}</span>
+            <h2 style="margin:0;font-family:'Bricolage Grotesque';font-weight:700;font-size:30px;letter-spacing:-0.02em;text-wrap:balance">{{ player.title }}</h2>
+            <span style="font-size:14px;color:#BDB8AD">{{ player.metaFull }}</span>
+          </div>
+          <div style="display:flex;gap:8px">
+            <a href="{{ player.src }}" download="{{ player.fileName }}" style="height:40px;padding:0 16px;border:1px solid #3A3832;border-radius:20px;display:flex;align-items:center;font-size:14px;color:#F3F1EC;text-decoration:none" style-hover="border-color:#F3F1EC">Download</a>
+            <button onClick="{{ player.onEdit }}" style="height:40px;padding:0 16px;border:1px solid #3A3832;border-radius:20px;background:transparent;color:#F3F1EC;cursor:pointer;font-size:14px" style-hover="border-color:#F3F1EC">Edit</button>
+            <button onClick="{{ closePlayer }}" style="width:40px;height:40px;border:0;border-radius:20px;background:#F3F1EC;color:#16150F;cursor:pointer;display:grid;place-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <span style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#BDB8AD">Up next</span>
+        <sc-for list="{{ upNext }}" as="u" hint-placeholder-count="4">
+          <button onClick="{{ u.onPlay }}" style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;align-items:center;padding:6px;border:0;border-radius:10px;background:transparent;color:#F3F1EC;cursor:pointer;text-align:left" style-hover="background:#24221E">
+            <span style="position:relative;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#24221E;display:block">
+              <sc-if value="{{ u.hasThumb }}"><img src="{{ u.thumb }}" ref="{{ u.thumbRef }}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+              <span style="position:absolute;right:4px;bottom:4px;padding:1px 5px;border-radius:4px;background:rgba(0,0,0,.75);font-family:'Geist Mono';font-size:11px">{{ u.durLabel }}</span>
+            </span>
+            <span style="display:flex;flex-direction:column;gap:3px;min-width:0">
+              <span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ u.title }}</span>
+              <span style="font-size:12px;color:#BDB8AD;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ u.client }}</span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ uploadOpen }}">
+  <div onClick="{{ closeUpload }}" style="position:fixed;inset:0;z-index:60;background:rgba(22,21,15,.45);display:grid;place-items:center;padding:24px">
+    <div onClick="{{ stop }}" style="width:100%;max-width:680px;max-height:calc(100vh - 48px);display:flex;flex-direction:column;border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 24px 64px rgba(22,21,15,.25)">
+      <div style="display:flex;align-items:center;gap:12px;padding:20px 24px 0">
+        <h3 style="margin:0;flex:1;font-family:'Bricolage Grotesque';font-weight:700;font-size:22px">Add videos</h3>
+        <button onClick="{{ closeUpload }}" style="width:34px;height:34px;border:0;border-radius:8px;background:#F3F1EC;cursor:pointer;display:grid;place-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+      </div>
+      <div style="display:flex;gap:4px;padding:16px 24px 0;border-bottom:1px solid #E2DED5">
+        <button onClick="{{ tabFile }}" style="height:38px;padding:0 4px;margin-right:16px;border:0;border-bottom:2px solid {{ tabFileLine }};background:transparent;cursor:pointer;font-size:14px;font-weight:600">From computer</button>
+        <button onClick="{{ tabLink }}" style="height:38px;padding:0 4px;border:0;border-bottom:2px solid {{ tabLinkLine }};background:transparent;cursor:pointer;font-size:14px;font-weight:600">From link</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px">
+        <sc-if value="{{ isFileTab }}">
+          <input type="file" accept="video/*" multiple="{{ true }}" ref="{{ fileRef }}" onChange="{{ onFiles }}" style="display:none">
+          <div onClick="{{ pickFiles }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:32px;border:1.5px dashed {{ dropBorder }};border-radius:12px;background:{{ dropBg }};cursor:pointer;text-align:center">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"></path></svg>
+            <span style="font-size:15px;font-weight:600">Drop video files or click to browse</span>
+            <span style="font-size:13px;color:#6B6860">MP4, MOV, WebM · multiple files supported</span>
+          </div>
+          <sc-for list="{{ pendingRows }}" as="p">
+            <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid #E2DED5;border-radius:10px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="flex:1;font-size:13px;color:#6B6860;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ p.fileName }} · {{ p.sizeLabel }}</span>
+                <button onClick="{{ p.onRemove }}" style="border:0;background:transparent;cursor:pointer;font-size:13px;color:#C2351B">Remove</button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
+                <input value="{{ p.title }}" onChange="{{ p.onTitle }}" placeholder="Title" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;min-width:0" style-focus="border-color:#16150F">
+                <input value="{{ p.client }}" onChange="{{ p.onClient }}" placeholder="Client / brand" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;min-width:0" style-focus="border-color:#16150F">
+              </div>
+            </div>
+          </sc-for>
+        </sc-if>
+        <sc-if value="{{ isLinkTab }}">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Video URL
+            <input value="{{ link.url }}" onChange="{{ onLinkUrl }}" placeholder="https://…/video.mp4" style="height:42px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400" style-focus="border-color:#16150F">
+          </label>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
+            <input value="{{ link.title }}" onChange="{{ onLinkTitle }}" placeholder="Title" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;min-width:0" style-focus="border-color:#16150F">
+            <input value="{{ link.client }}" onChange="{{ onLinkClient }}" placeholder="Client / brand" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;min-width:0" style-focus="border-color:#16150F">
+          </div>
+          <span style="font-size:13px;color:#6B6860;text-wrap:pretty">Use a direct video file link (.mp4/.webm). Page links from YouTube or Vimeo won't play here.</span>
+        </sc-if>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid #E2DED5">
+        <span style="flex:1;font-size:13px;color:#6B6860">{{ saveNote }}</span>
+        <button onClick="{{ closeUpload }}" style="height:40px;padding:0 16px;border:1px solid #E2DED5;border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-weight:500">Cancel</button>
+        <button onClick="{{ saveUpload }}" disabled="{{ saveDisabled }}" style="height:40px;padding:0 18px;border:0;border-radius:10px;background:{{ saveBg }};color:#fff;cursor:pointer;font-size:14px;font-weight:600">{{ saveLabel }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ editOpen }}">
+  <div onClick="{{ closeEdit }}" style="position:fixed;inset:0;z-index:70;background:rgba(22,21,15,.45);display:grid;place-items:center;padding:24px">
+    <div onClick="{{ stop }}" style="width:100%;max-width:460px;display:flex;flex-direction:column;gap:14px;padding:24px;border-radius:16px;background:#fff;color:#16150F;box-shadow:0 24px 64px rgba(22,21,15,.25)">
+      <h3 style="margin:0 0 4px;font-family:'Bricolage Grotesque';font-weight:700;font-size:22px">Edit details</h3>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Title<input value="{{ draft.title }}" onChange="{{ onDraftTitle }}" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400" style-focus="border-color:#16150F"></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Client / brand<input value="{{ draft.client }}" onChange="{{ onDraftClient }}" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400" style-focus="border-color:#16150F"></label>
+      <div style="display:grid;grid-template-columns:1fr;gap:10px">
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Date<input type="date" value="{{ draft.date }}" onChange="{{ onDraftDate }}" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400;min-width:0" style-focus="border-color:#16150F"></label>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:6px">
+        <button onClick="{{ closeEdit }}" style="height:40px;padding:0 16px;border:1px solid #E2DED5;border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-weight:500">Cancel</button>
+        <button onClick="{{ saveEdit }}" style="height:40px;padding:0 18px;border:0;border-radius:10px;background:#16150F;color:#fff;cursor:pointer;font-size:14px;font-weight:600">Save</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ profileOpen }}">
+  <div onClick="{{ closeProfile }}" style="position:fixed;inset:0;z-index:70;background:rgba(22,21,15,.45);display:grid;place-items:center;padding:24px">
+    <div onClick="{{ stop }}" style="width:100%;max-width:640px;max-height:calc(100vh - 48px);display:flex;flex-direction:column;border-radius:16px;background:#fff;color:#16150F;overflow:hidden;box-shadow:0 24px 64px rgba(22,21,15,.25)">
+      <div style="display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid #E2DED5">
+        <h3 style="margin:0;flex:1;font-family:'Bricolage Grotesque';font-weight:700;font-size:22px">Profile details</h3>
+        <button onClick="{{ closeProfile }}" style="width:34px;height:34px;border:0;border-radius:8px;background:#F3F1EC;cursor:pointer;display:grid;place-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:22px">
+        <input type="file" accept="image/*" ref="{{ avatarRef }}" onChange="{{ onAvatarFile }}" style="display:none">
+        <input type="file" accept="image/*" ref="{{ coverRef }}" onChange="{{ onCoverFile }}" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#6B6860">Images</span>
+          <div style="position:relative;height:140px;border-radius:12px;overflow:hidden;background:#1A1916">
+            <sc-if value="{{ pd.hasCover }}"><img src="{{ pd.cover }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+            <div style="position:absolute;right:10px;bottom:10px;display:flex;gap:6px">
+              <sc-if value="{{ pd.hasCover }}"><button onClick="{{ removeCover }}" style="height:32px;padding:0 12px;border:0;border-radius:16px;background:rgba(15,14,12,.7);color:#fff;cursor:pointer;font-size:12px;font-weight:600">Remove</button></sc-if>
+              <button onClick="{{ pickCover }}" style="height:32px;padding:0 12px;border:0;border-radius:16px;background:#F3F1EC;color:#16150F;cursor:pointer;font-size:12px;font-weight:600">Upload cover</button>
+            </div>
+            <span style="position:absolute;left:12px;bottom:12px;font-size:12px;color:#BDB8AD">{{ pd.coverNote }}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:72px;height:72px;border-radius:50%;overflow:hidden;background:#16150F;color:#F3F1EC;display:grid;place-items:center;font-family:'Bricolage Grotesque';font-weight:700;font-size:22px;flex:none">
+              <sc-if value="{{ pd.hasAvatar }}"><img src="{{ pd.avatar }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+              <sc-if value="{{ pd.noAvatar }}"><span>{{ pd.initials }}</span></sc-if>
+            </div>
+            <button onClick="{{ pickAvatar }}" style="height:36px;padding:0 14px;border:1px solid #E2DED5;border-radius:9px;background:#fff;cursor:pointer;font-size:13px;font-weight:600" style-hover="border-color:#16150F">Upload photo</button>
+            <sc-if value="{{ pd.hasAvatar }}"><button onClick="{{ removeAvatar }}" style="border:0;background:transparent;cursor:pointer;font-size:13px;color:#C2351B">Remove</button></sc-if>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#6B6860">About</span>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Name<input value="{{ pd.name }}" onChange="{{ pf.name }}" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400;min-width:0" style-focus="border-color:#16150F"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Pronouns<input value="{{ pd.pronouns }}" onChange="{{ pf.pronouns }}" placeholder="he/him" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400;min-width:0" style-focus="border-color:#16150F"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Role / headline<input value="{{ pd.headline }}" onChange="{{ pf.headline }}" placeholder="Director · Founder, Atom Content" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400;min-width:0" style-focus="border-color:#16150F"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Location<input value="{{ pd.location }}" onChange="{{ pf.location }}" placeholder="Mumbai, Delhi, Hyderabad" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400;min-width:0" style-focus="border-color:#16150F"></label>
+          </div>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Bio<textarea value="{{ pd.bio }}" onChange="{{ pf.bio }}" rows="4" style="padding:10px 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400;line-height:1.5;resize:vertical" style-focus="border-color:#16150F"></textarea></label>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#6B6860">Contact &amp; socials</span>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Email<input type="email" value="{{ pd.email }}" onChange="{{ pf.email }}" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400;min-width:0" style-focus="border-color:#16150F"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Phone<input value="{{ pd.phone }}" onChange="{{ pf.phone }}" placeholder="+91" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400;min-width:0" style-focus="border-color:#16150F"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Instagram<input value="{{ pd.instagram }}" onChange="{{ pf.instagram }}" placeholder="handle or profile URL" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400;min-width:0" style-focus="border-color:#16150F"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">LinkedIn<input value="{{ pd.linkedin }}" onChange="{{ pf.linkedin }}" placeholder="handle or profile URL" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400;min-width:0" style-focus="border-color:#16150F"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">YouTube<input value="{{ pd.youtube }}" onChange="{{ pf.youtube }}" placeholder="channel URL" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400;min-width:0" style-focus="border-color:#16150F"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600">Website<input value="{{ pd.website }}" onChange="{{ pf.website }}" placeholder="atomcontent.in" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;font-weight:400;min-width:0" style-focus="border-color:#16150F"></label>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#6B6860">Other links</span>
+          <sc-for list="{{ linkRows }}" as="l">
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) auto;gap:8px;align-items:center">
+              <input value="{{ l.label }}" onChange="{{ l.onLabel }}" placeholder="Label (e.g. IMDb)" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;min-width:0" style-focus="border-color:#16150F">
+              <input value="{{ l.url }}" onChange="{{ l.onUrl }}" placeholder="https://" style="height:40px;padding:0 12px;border:1px solid #E2DED5;border-radius:8px;outline:none;font-size:14px;min-width:0" style-focus="border-color:#16150F">
+              <button onClick="{{ l.onRemove }}" style="width:36px;height:36px;border:0;border-radius:8px;background:transparent;cursor:pointer;color:#C2351B;display:grid;place-items:center" style-hover="background:#FBEAE5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+            </div>
+          </sc-for>
+          <button onClick="{{ addLinkRow }}" style="align-self:flex-start;display:flex;align-items:center;gap:8px;height:36px;padding:0 14px;border:1px dashed #D5D0C5;border-radius:9px;background:#fff;cursor:pointer;font-size:13px;font-weight:600" style-hover="border-color:#16150F"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Add link</button>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid #E2DED5">
+        <button onClick="{{ closeProfile }}" style="height:40px;padding:0 16px;border:1px solid #E2DED5;border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-weight:500">Cancel</button>
+        <button onClick="{{ saveProfile }}" style="height:40px;padding:0 18px;border:0;border-radius:10px;background:#16150F;color:#fff;cursor:pointer;font-size:14px;font-weight:600">Save profile</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ hasToast }}">
+  <div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:80;padding:12px 18px;border-radius:10px;background:#16150F;color:#F3F1EC;font-size:14px;box-shadow:0 12px 32px rgba(22,21,15,.3)">{{ toast }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;hoverPreview&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Playback&quot;},&quot;autoplayNext&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Playback&quot;}}">
+const DB = 'portfolio-v2', STORE = 'videos';
+const S = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/';
+const DEFAULT_CATS = ['Showreel', 'Ad Film', 'Brand Film', 'Microdrama', 'Social Cut', 'Music Video'];
+const SEED = [];
+const PKEY = 'portfolio-v2-profile';
+const DEFAULT_PROFILE = { name: '', pronouns: '', headline: '', location: '', bio: '', email: '', phone: '', instagram: '',
+  linkedin: '', youtube: '', website: '', links: [], avatar: null, cover: null };
+const handle = v => v.replace(/^https?:\/\/(www\.)?[^/]+\/(in\/)?/i, '').replace(/^@/, '').replace(/\/$/, '').split('?')[0];
+const abs = v => /^https?:\/\//i.test(v) ? v : 'https://' + v;
+const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+async function crc32Blob(blob) { let c = 0xFFFFFFFF; const CH = 8 << 20; for (let o = 0; o < blob.size; o += CH) { const b = new Uint8Array(await blob.slice(o, o + CH).arrayBuffer()); for (let i = 0; i < b.length; i++) c = CRC_T[(c ^ b[i]) & 255] ^ (c >>> 8); } return (c ^ 0xFFFFFFFF) >>> 0; }
+async function makeZip(files, onProg) {
+  const enc = new TextEncoder(), parts = [], central = []; let offset = 0, i = 0;
+  for (const f of files) {
+    onProg && onProg(++i, files.length, f.name);
+    const nb = enc.encode(f.name), crc = await crc32Blob(f.blob), size = f.blob.size;
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(12, 0x21, true);
+    lh.setUint32(14, crc, true); lh.setUint32(18, size, true); lh.setUint32(22, size, true); lh.setUint16(26, nb.length, true);
+    parts.push(lh.buffer, nb, f.blob);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(14, 0x21, true);
+    ch.setUint32(16, crc, true); ch.setUint32(20, size, true); ch.setUint32(24, size, true); ch.setUint16(28, nb.length, true); ch.setUint32(42, offset, true);
+    central.push(ch.buffer, nb);
+    offset += 30 + nb.length + size;
+  }
+  const cdSize = central.reduce((s, p) => s + p.byteLength, 0);
+  const e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cdSize, true); e.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, e.buffer], { type: 'application/zip' });
+}
+const dataUrlToBlob = async d => (await fetch(d)).blob();
+const slug = s => (s || 'video').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'video';
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+const today = () => new Date().toISOString().slice(0, 10);
+const fmtDur = s => { if (!s || !isFinite(s)) return '--:--'; s = Math.round(s); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = String(s % 60).padStart(2, '0'); return h ? `${h}:${String(m).padStart(2, '0')}:${x}` : `${String(m).padStart(2, '0')}:${x}`; };
+const fmtSize = b => b >= 1e9 ? (b / 1e9).toFixed(1) + ' GB' : b >= 1e6 ? Math.round(b / 1e6) + ' MB' : Math.round(b / 1e3) + ' KB';
+const fmtDate = d => { const t = d ? new Date(d + 'T00:00:00') : null; return t && !isNaN(t) ? t.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''; };
+// Paths that live next to the page (e.g. "videos/x.mp4" from a published portfolio.json) rather than in this browser.
+const isRel = s => typeof s === 'string' && !!s && !/^(data:|blob:|[a-z][a-z0-9+.-]*:|\/\/)/i.test(s);
+const relPath = s => s.replace(/^\.?\//, '');
+const isHttpUrl = s => { try { const u = new URL(s); return u.protocol === 'http:' || u.protocol === 'https:'; } catch (e) { return false; } };
+
+class Component extends DCLogic {
+  state = { view: 'home', category: 'All', query: '', sort: 'new', videos: [], playingId: null,
+    uploadOpen: false, tab: 'file', pending: [], link: { url: '', title: '', client: '', category: 'Ad Film' },
+    saving: false, dragging: false, editDraft: null, menuKey: null, hoverKey: null, toast: '', quota: 0, createOpen: false, profileDraft: null, profile: (() => { try { return { ...DEFAULT_PROFILE, ...JSON.parse(localStorage.getItem(PKEY) || '{}') }; } catch (e) { return DEFAULT_PROFILE; } })() };
+  avatarRef = React.createRef();
+  coverRef = React.createRef();
+  fileRef = React.createRef();
+  urls = {};
+
+  idb() {
+    if (!this._db) this._db = new Promise((res, rej) => {
+      const r = indexedDB.open(DB, 1);
+      r.onupgradeneeded = () => r.result.createObjectStore(STORE, { keyPath: 'id' });
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+    return this._db;
+  }
+  async tx(mode, fn) {
+    const db = await this.idb();
+    return new Promise((res, rej) => {
+      const t = db.transaction(STORE, mode); const out = fn(t.objectStore(STORE));
+      t.oncomplete = () => res(out && out.result); t.onerror = () => rej(t.error);
+    });
+  }
+  put(v) { return this.tx('readwrite', s => s.put(v)); }
+  async reload() {
+    const local = (await this.tx('readonly', s => s.getAll())) || [];
+    const map = new Map((this.site || []).map(v => [v.id, v]));
+    local.forEach(v => map.set(v.id, { ...(map.get(v.id) || {}), ...v }));
+    const all = [...map.values()].filter(v => !v.purged);
+    this.setState({ videos: all }); return all;
+  }
+  async loadSite() {
+    try {
+      const r = await fetch('portfolio.json', { cache: 'no-store' });
+      if (!r.ok) return;
+      const d = await r.json();
+      this.site = (d.videos || []).map((v, i) => ({ ...v, url: v.src, src: undefined, deleted: false, published: true, createdAt: v.createdAt || (Date.parse(v.date || '') || Date.now()) - i }));
+      if (d.profile && !localStorage.getItem(PKEY)) this.setState(s => ({ profile: { ...s.profile, ...d.profile } }));
+    } catch (e) {}
+  }
+
+  async componentDidMount() {
+    this._key = e => { if (e.key === 'Escape') this.setState({ playingId: null, uploadOpen: false, editDraft: null, menuKey: null, createOpen: false, profileDraft: null }); };
+    this._click = () => (this.state.menuKey || this.state.createOpen) && this.setState({ menuKey: null, createOpen: false });
+    document.addEventListener('keydown', this._key);
+    document.addEventListener('click', this._click);
+    await this.loadSite();
+    let all = await this.reload();
+    this.estimate();
+    for (const v of all.filter(v => !v.duration)) {
+      this.probe(this.src(v), false).then(m => { if (m.duration) this.put({ ...v, duration: m.duration }).then(() => this.reload()); });
+    }
+  }
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this._key);
+    document.removeEventListener('click', this._click);
+    Object.values(this.urls).forEach(u => URL.revokeObjectURL(u));
+  }
+  estimate() { navigator.storage && navigator.storage.estimate && navigator.storage.estimate().then(e => this.setState({ quota: e.quota || 0 })); }
+  src(v) {
+    if (v.blob) { if (!this.urls[v.id]) this.urls[v.id] = URL.createObjectURL(v.blob); return this.urls[v.id]; }
+    return v.url;
+  }
+  probe(src, wantThumb = true) {
+    return new Promise(res => {
+      const el = document.createElement('video'); let dur = 0, done = false;
+      const finish = r => { if (!done) { done = true; el.removeAttribute('src'); el.load(); res(r); } };
+      el.muted = true; el.preload = 'auto'; el.src = src;
+      el.onloadedmetadata = () => { dur = el.duration; if (!wantThumb) return finish({ duration: dur }); el.currentTime = Math.min(1.5, dur * 0.25); };
+      el.onseeked = () => {
+        try {
+          const c = document.createElement('canvas'); c.width = 640; c.height = Math.round(640 * el.videoHeight / el.videoWidth) || 360;
+          c.getContext('2d').drawImage(el, 0, 0, c.width, c.height);
+          finish({ duration: dur, thumb: c.toDataURL('image/jpeg', 0.8) });
+        } catch (e) { finish({ duration: dur, thumb: null }); }
+      };
+      el.onerror = () => finish({ duration: 0, thumb: null });
+      setTimeout(() => finish({ duration: dur, thumb: null }), 15000);
+    });
+  }
+  resizeImage(file, max) {
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(file), img = new Image();
+      img.onload = () => { const k = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', 0.85)); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(); };
+      img.src = url;
+    });
+  }
+  pickImage(field, max) { return async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+    try { const d = await this.resizeImage(f, max); this.setState(s => ({ profileDraft: { ...s.profileDraft, [field]: d } })); } catch (x) { this.flash('Could not read image'); } }; }
+  saveProfile() {
+    const d = { ...this.state.profileDraft, links: (this.state.profileDraft.links || []).filter(l => l.url.trim()) };
+    try { localStorage.setItem(PKEY, JSON.stringify(d)); } catch (e) { return this.flash('Images too large to save — try smaller files'); }
+    this.setState({ profile: d, profileDraft: null, view: 'profile' }); this.flash('Profile saved');
+  }
+  // Local source folder: index.html (dashboard) + portfolio.html (client view).
+  // Published site: index.html (client view, what clients land on) + admin.html (dashboard).
+  isPublishedAdmin() { return /\/admin(\.html)?$/i.test(location.pathname); }
+  clientHref() { return /\.dc\.html$/.test(location.pathname) ? 'Portfolio.dc.html' : this.isPublishedAdmin() ? './' : 'portfolio.html'; }
+  async fetchBlob(path, label) {
+    const r = await fetch(path, { cache: 'no-store' });
+    if (!r.ok) throw new Error(`${label} not found (${path}, HTTP ${r.status})`);
+    return r.blob();
+  }
+  async publish() {
+    if (this.state.publishing) return;
+    if (location.protocol === 'file:') return this.flash('Publishing needs a local server — run "npx serve" in this folder, then open the localhost link');
+    const vids = this.state.videos.filter(v => !v.deleted).sort((a, b) => (!!b.featured - !!a.featured) || (b.createdAt || 0) - (a.createdAt || 0));
+    const total = vids.reduce((s, v) => s + (v.blob ? v.blob.size : 0), 0);
+    if (total > 3.9e9) return this.flash('Over 3.9 GB of videos — remove some or use links for large files');
+    this.setState({ createOpen: false, publishing: 'Preparing…' });
+    try {
+      const files = [], seen = new Set(), P = { ...this.state.profile };
+      const add = (name, blob) => { if (!seen.has(name)) { seen.add(name); files.push({ name, blob }); } };
+      // Assets already published next to this page (republishing from the live site) are fetched and re-packed.
+      const carry = async (path, label) => { const p = relPath(path); if (!seen.has(p)) { this.setState({ publishing: `Collecting ${p.split('/').pop()}` }); add(p, await this.fetchBlob(path, label)); } return p; };
+      for (const k of ['avatar', 'cover']) {
+        if (P[k] && P[k].startsWith('data:')) { add('images/' + k + '.jpg', await dataUrlToBlob(P[k])); P[k] = 'images/' + k + '.jpg'; }
+        else if (isRel(P[k])) P[k] = await carry(P[k], 'Profile ' + k);
+      }
+      const out = [];
+      for (const v of vids) {
+        const o = { id: v.id, title: v.title, client: v.client, date: v.date, duration: v.duration, featured: !!v.featured, src: v.url, thumb: v.thumb, createdAt: v.createdAt };
+        if (v.blob) { const ext = ((v.fileName || '').match(/\.(\w+)$/) || [, 'mp4'])[1].toLowerCase(); o.src = 'videos/' + slug(v.title) + '-' + v.id.slice(0, 6) + '.' + ext; add(o.src, v.blob); }
+        else if (isRel(v.url)) o.src = await carry(v.url, `Video “${v.title}”`);
+        if (v.thumb && v.thumb.startsWith('data:')) { o.thumb = 'thumbs/' + v.id + '.jpg'; add(o.thumb, await dataUrlToBlob(v.thumb)); }
+        else if (isRel(v.thumb)) { try { o.thumb = await carry(v.thumb, 'Thumbnail'); } catch (e) { o.thumb = null; } }
+        out.push(o);
+      }
+      if (files.reduce((s, f) => s + f.blob.size, 0) > 3.9e9) throw new Error('site is over 3.9 GB — remove some videos or use links for large files');
+      add('portfolio.json', new Blob([JSON.stringify({ profile: P, videos: out, publishedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' }));
+      add('index.html', await this.fetchBlob(this.clientHref(), 'Client view page'));
+      add('admin.html', await this.fetchBlob(location.pathname, 'Dashboard page'));
+      add('support.js', await this.fetchBlob('support.js', 'support.js'));
+      const zip = await makeZip(files, (i, n, name) => this.setState({ publishing: `Packing ${i}/${n} · ${name.split('/').pop()}` }));
+      const a = document.createElement('a'); a.href = URL.createObjectURL(zip); a.download = 'portfolio-site.zip'; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+      this.setState({ publishing: null }); this.flash('portfolio-site.zip downloaded — unzip and drop the folder on Netlify. Your dashboard will be at /admin.html');
+    } catch (e) { this.setState({ publishing: null }); this.flash('Publish failed: ' + (e.message || e)); }
+  }
+  flash(msg) { this.setState({ toast: msg }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: '' }), 2600); }
+
+  addFiles(files) {
+    const list = [...files].filter(f => f.type.startsWith('video/') || /\.(mp4|mov|webm|m4v|mkv)$/i.test(f.name));
+    if (!list.length) return this.flash('No video files found');
+    const cat = this.state.category !== 'All' ? this.state.category : 'Ad Film';
+    const pending = list.map(f => ({ key: uid(), file: f, title: f.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim(), client: '', category: cat }));
+    this.setState(s => ({ pending: [...s.pending, ...pending], uploadOpen: true, tab: 'file', dragging: false }));
+  }
+  updPending(key, field, val) { this.setState(s => ({ pending: s.pending.map(p => p.key === key ? { ...p, [field]: val } : p) })); }
+
+  async saveUpload() {
+    if (this.state.saving) return;
+    this.setState({ saving: true });
+    navigator.storage && navigator.storage.persist && navigator.storage.persist();
+    let n = 0;
+    try {
+      if (this.state.tab === 'file') {
+        for (const p of this.state.pending) {
+          const tmp = URL.createObjectURL(p.file);
+          const m = await this.probe(tmp, true); URL.revokeObjectURL(tmp);
+          await this.put({ id: uid(), title: p.title.trim() || p.file.name, client: p.client.trim() || '—', category: p.category || 'Uncategorized',
+            date: today(), duration: m.duration || 0, thumb: m.thumb, blob: p.file, size: p.file.size, fileName: p.file.name,
+            deleted: false, featured: false, createdAt: Date.now() + n });
+          n++;
+        }
+      } else {
+        const l = { ...this.state.link, url: this.state.link.url.trim() };
+        if (!isHttpUrl(l.url)) { this.setState({ saving: false }); return this.flash('Enter a full video link starting with https://'); }
+        const m = await this.probe(l.url, true);
+        if (!m.duration) { this.setState({ saving: false }); return this.flash('That link didn’t load as a video — use a direct .mp4/.webm file URL'); }
+        await this.put({ id: uid(), title: l.title.trim() || decodeURIComponent(l.url.split(/[?#]/)[0].split('/').pop()) || 'Untitled', client: l.client.trim() || '—', category: l.category || 'Uncategorized',
+          date: today(), duration: m.duration || 0, thumb: m.thumb, url: l.url, size: 0, deleted: false, featured: false, createdAt: Date.now() });
+        n = 1;
+      }
+      await this.reload(); this.estimate();
+      this.setState({ uploadOpen: false, pending: [], link: { url: '', title: '', client: '', category: 'Ad Film' } });
+      this.flash(n === 1 ? 'Video added' : `${n} videos added`);
+    } catch (e) { this.flash('Could not save — browser storage may be full'); }
+    this.setState({ saving: false });
+  }
+
+  async patch(id, changes) { const v = this.state.videos.find(x => x.id === id); if (!v) return; await this.put({ ...v, ...changes }); await this.reload(); }
+  async feature(id) { for (const v of this.state.videos) if (v.featured !== (v.id === id)) await this.put({ ...v, featured: v.id === id }); await this.reload(); this.flash('Featured on home'); }
+  async purge(id) { const pv = (this.site || []).find(x => x.id === id); await this.tx('readwrite', s => pv ? s.put({ id, purged: true }) : s.delete(id)); if (this.urls[id]) { URL.revokeObjectURL(this.urls[id]); delete this.urls[id]; } await this.reload(); this.estimate(); this.flash('Deleted forever'); }
+
+  deco(v, ctx) {
+    const key = ctx + ':' + v.id, src = this.src(v);
+    const hover = (this.props.hoverPreview ?? true) && this.state.hoverKey === key && !v.deleted;
+    const okThumb = !!v.thumb && !(this.state.badThumbs || {})[v.id];
+    return {
+      id: v.id, title: v.title, client: v.client, category: v.category, src, thumb: v.thumb,
+      hasThumb: okThumb, noThumb: !okThumb,
+      thumbRef: el => { if (!el) return; const bad = () => !(this.state.badThumbs || {})[v.id] && this.setState(s => ({ badThumbs: { ...(s.badThumbs || {}), [v.id]: true } })); el.onerror = bad; if (el.complete && !el.naturalWidth && el.getAttribute('src')) bad(); }, durLabel: fmtDur(v.duration), dateLabel: fmtDate(v.date),
+      metaLabel: [v.client, fmtDate(v.date)].filter(Boolean).join(' · '), metaFull: [v.client, fmtDur(v.duration), fmtDate(v.date)].filter(Boolean).join(' · '),
+      fileName: v.fileName || (v.title + '.mp4'), isDeleted: !!v.deleted, notDeleted: !v.deleted,
+      thumbOpacity: v.deleted ? 0.45 : 1, showPreview: hover, menuOpen: this.state.menuKey === key,
+      onPlay: () => { if (v.deleted) return; this.setState({ playingId: v.id, menuKey: null, hoverKey: null }); },
+      onEnter: () => { clearTimeout(this._ht); this._ht = setTimeout(() => this.setState({ hoverKey: key }), 450); },
+      onLeave: () => { clearTimeout(this._ht); if (this.state.hoverKey) this.setState({ hoverKey: null }); },
+      onMenu: e => { e.stopPropagation(); this.setState(s => ({ menuKey: s.menuKey === key ? null : key })); },
+      onEdit: () => this.setState({ menuKey: null, editDraft: { id: v.id, title: v.title, client: v.client, category: v.category, date: v.date } }),
+      onFeature: () => { this.setState({ menuKey: null }); this.feature(v.id); },
+      onDelete: () => { this.setState({ menuKey: null }); this.patch(v.id, { deleted: true, featured: false }).then(() => this.flash('Moved to Recently deleted')); },
+      onRestore: () => { this.setState({ menuKey: null }); this.patch(v.id, { deleted: false }).then(() => this.flash('Restored')); },
+      onPurge: () => { this.setState({ menuKey: null }); this.purge(v.id); },
+    };
+  }
+
+  renderVals() {
+    const st = this.state;
+    const all = st.videos, active = all.filter(v => !v.deleted), deleted = all.filter(v => v.deleted);
+    const byNew = [...active].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    const cats = [...new Set(active.map(v => v.category))];
+    const count = c => active.filter(v => v.category === c).length;
+    const go = (view, category = 'All') => this.setState({ view, category, menuKey: null, query: view === 'home' ? '' : st.query });
+    const bg = on => on ? '#E6E2D9' : 'transparent';
+
+    const heroV = active.find(v => v.featured) || byNew[0];
+    const rows = [];
+    if (byNew.length) rows.push({ title: 'Recent work', count: byNew.length, items: byNew.slice(0, 24).map(v => this.deco(v, 'recent')), onSeeAll: () => go('library') });
+
+    const q = st.query.trim().toLowerCase();
+    let grid = st.view === 'deleted' ? deleted : active;
+    if (q && st.view !== 'deleted') grid = grid.filter(v => [v.title, v.client].join(' ').toLowerCase().includes(q));
+    const sorters = { new: (a, b) => (b.createdAt || 0) - (a.createdAt || 0), old: (a, b) => (a.createdAt || 0) - (b.createdAt || 0), az: (a, b) => (a.title || '').localeCompare(b.title || ''), long: (a, b) => (b.duration || 0) - (a.duration || 0) };
+    grid = [...grid].sort(sorters[st.sort]);
+    const isLibrary = st.view === 'library';
+
+    const used = all.reduce((s, v) => s + (v.size || 0), 0);
+    const playing = all.find(v => v.id === st.playingId);
+    const upNextRaw = playing ? byNew.filter(v => v.id !== playing.id) : [];
+    const playNext = () => { if ((this.props.autoplayNext ?? true) && upNextRaw[0]) this.setState({ playingId: upNextRaw[0].id }); };
+    const draft = st.editDraft;
+    const setDraft = f => e => { const val = e.target.value; this.setState(s => ({ editDraft: { ...s.editDraft, [f]: val } })); };
+    const setLink = f => e => { const val = e.target.value; this.setState(s => ({ link: { ...s.link, [f]: val } })); };
+    const nPending = st.pending.length;
+    const canSave = st.tab === 'file' ? nPending > 0 : !!st.link.url.trim();
+
+    const P = st.profile, PD = st.profileDraft;
+    const initials = n => (n || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    const contacts = [];
+    if (P.email) contacts.push({ isMail: true, label: P.email, href: 'mailto:' + P.email });
+    if (P.phone) contacts.push({ isPhone: true, label: P.phone, href: 'tel:' + P.phone.replace(/\s/g, '') });
+    if (P.instagram) contacts.push({ isIg: true, label: '@' + handle(P.instagram), href: /^https?:/i.test(P.instagram) ? P.instagram : 'https://instagram.com/' + handle(P.instagram) });
+    if (P.linkedin) contacts.push({ isIn: true, label: handle(P.linkedin), href: /^https?:/i.test(P.linkedin) ? P.linkedin : 'https://linkedin.com/in/' + handle(P.linkedin) });
+    if (P.youtube) contacts.push({ isYt: true, label: P.youtube.replace(/^https?:\/\/(www\.)?/i, ''), href: abs(P.youtube) });
+    if (P.website) contacts.push({ isWeb: true, label: P.website.replace(/^https?:\/\/(www\.)?/i, ''), href: abs(P.website) });
+    (P.links || []).forEach(l => l.url && contacts.push({ isWeb: true, label: l.label || l.url.replace(/^https?:\/\/(www\.)?/i, ''), href: abs(l.url) }));
+    const openProfile = () => this.setState({ createOpen: false, profileDraft: { ...DEFAULT_PROFILE, ...P, links: [...(P.links || [])] } });
+    const setPD = f => e => { const val = e.target.value; this.setState(s => ({ profileDraft: { ...s.profileDraft, [f]: val } })); };
+    const updLink = (i, f) => e => { const val = e.target.value; this.setState(s => ({ profileDraft: { ...s.profileDraft, links: s.profileDraft.links.map((l, j) => j === i ? { ...l, [f]: val } : l) } })); };
+    const coverSrc = P.cover || (heroV && heroV.thumb);
+    return {
+      navProfileBg: bg(st.view === 'profile'), isProfile: st.view === 'profile', notProfile: st.view !== 'profile', goProfile: () => go('profile'),
+      profile: { ...P, displayName: P.name || 'Your name', initials: initials(P.name), hasAvatar: !!P.avatar, noAvatar: !P.avatar, hasCover: !!coverSrc, coverSrc },
+      contacts, clientCount: new Set(active.map(v => v.client).filter(c => c && c !== '—')).size,
+      hideOnError: el => { if (el) { el.onerror = () => { el.style.display = 'none'; }; } },
+      toggleCreate: e => { e.stopPropagation(); this.setState(s => ({ createOpen: !s.createOpen, menuKey: null })); },
+      createOpen: st.createOpen,
+      createUpload: () => this.setState({ createOpen: false, uploadOpen: true, tab: 'file' }),
+      createLink: () => this.setState({ createOpen: false, uploadOpen: true, tab: 'link' }),
+      createProfile: openProfile, editProfile: openProfile,
+      shareProfile: () => { const t = [P.name, P.headline, P.location, P.bio, ...contacts.map(c => c.href.replace(/^mailto:|^tel:/, ''))].filter(Boolean).join('\n'); navigator.clipboard && navigator.clipboard.writeText(t).then(() => this.flash('Profile details copied'), () => this.flash('Copy failed')); },
+      profileOpen: !!PD, closeProfile: () => this.setState({ profileDraft: null }),
+      pd: PD ? { ...PD, initials: initials(PD.name), hasAvatar: !!PD.avatar, noAvatar: !PD.avatar, hasCover: !!PD.cover, coverNote: PD.cover ? '' : 'No cover — featured video thumbnail is used' } : {},
+      pf: Object.fromEntries(['name', 'pronouns', 'headline', 'location', 'bio', 'email', 'phone', 'instagram', 'linkedin', 'youtube', 'website'].map(f => [f, setPD(f)])),
+      avatarRef: this.avatarRef, coverRef: this.coverRef,
+      pickAvatar: () => this.avatarRef.current && this.avatarRef.current.click(), pickCover: () => this.coverRef.current && this.coverRef.current.click(),
+      onAvatarFile: this.pickImage('avatar', 480), onCoverFile: this.pickImage('cover', 1920),
+      removeAvatar: () => this.setState(s => ({ profileDraft: { ...s.profileDraft, avatar: null } })),
+      removeCover: () => this.setState(s => ({ profileDraft: { ...s.profileDraft, cover: null } })),
+      linkRows: PD ? (PD.links || []).map((l, i) => ({ ...l, onLabel: updLink(i, 'label'), onUrl: updLink(i, 'url'), onRemove: () => this.setState(s => ({ profileDraft: { ...s.profileDraft, links: s.profileDraft.links.filter((_, j) => j !== i) } })) })) : [],
+      addLinkRow: () => this.setState(s => ({ profileDraft: { ...s.profileDraft, links: [...(s.profileDraft.links || []), { label: '', url: '' }] } })),
+      saveProfile: () => this.saveProfile(),
+      publish: () => this.publish(), clientHref: this.clientHref(),
+      goHome: () => go('home'), goLibrary: () => go('library'), goDeleted: () => go('deleted'),
+      navHomeBg: bg(st.view === 'home'), navLibBg: bg(isLibrary), navDelBg: bg(st.view === 'deleted'),
+      activeCount: active.length, deletedCount: deleted.length, catCount: cats.length,
+      sideCats: cats.map(c => ({ label: c, count: count(c), bg: bg(isLibrary && st.category === c), onClick: () => go('library', c) })),
+      storageUsed: fmtSize(used),
+      storagePct: st.quota ? Math.max(1, Math.min(100, used / st.quota * 100)).toFixed(1) + '%' : '1%',
+      storageNote: st.quota ? `Saved in this browser · ${fmtSize(st.quota)} available` : 'Saved in this browser',
+      query: st.query, onQuery: e => this.setState({ query: e.target.value, view: st.view === 'home' && e.target.value ? 'library' : st.view }),
+      openUpload: () => this.setState({ uploadOpen: true, tab: 'file' }), openLink: () => this.setState({ uploadOpen: true, tab: 'link' }),
+      isHome: st.view === 'home', hasHero: !!heroV, hero: heroV ? this.deco(heroV, 'hero') : {},
+      rows, scrollRow: e => { const dir = +e.currentTarget.dataset.dir; const sc = e.currentTarget.closest('[data-row]').querySelector('[data-scroller]'); sc.scrollBy({ left: dir * sc.clientWidth * 0.85, behavior: 'smooth' }); },
+      mutedRef: el => { if (el) { el.muted = true; const p = el.play(); p && p.catch(() => {}); } },
+      showGrid: st.view !== 'home', isLibrary,
+      gridTitle: st.view === 'profile' ? 'Work' : st.view === 'deleted' ? 'Recently deleted' : q ? `Results for “${st.query.trim()}”` : 'All work',
+      gridSub: st.view === 'deleted' ? 'Restore videos or delete them forever.' : `${grid.length} video${grid.length === 1 ? '' : 's'}`,
+      sort: st.sort, onSort: e => this.setState({ sort: e.target.value }),
+      chips: ['All', ...cats].map(c => { const on = st.category === c; return { label: c, count: c === 'All' ? active.length : count(c), bg: on ? '#16150F' : '#fff', color: on ? '#fff' : '#16150F', border: on ? '#16150F' : '#E2DED5', onClick: () => this.setState({ category: c }) }; }),
+      gridItems: grid.map(v => this.deco(v, 'grid')), gridEmpty: !grid.length,
+      emptyTitle: st.view === 'deleted' ? 'Nothing here' : st.view === 'profile' ? 'No videos yet' : 'No videos found',
+      emptySub: st.view === 'deleted' ? 'Deleted videos show up here.' : st.view === 'profile' ? 'Use Create → Upload video to add your first piece.' : 'Try another search or upload new work.',
+      playerOpen: !!playing, player: playing ? { ...this.deco(playing, 'player'), onEdit: () => this.setState({ playingId: null, editDraft: { id: playing.id, title: playing.title, client: playing.client, category: playing.category, date: playing.date } }) } : {},
+      upNext: upNextRaw.slice(0, 12).map(v => this.deco(v, 'next')), onEnded: playNext,
+      closePlayer: () => this.setState({ playingId: null }), stop: e => e.stopPropagation(),
+      uploadOpen: st.uploadOpen, closeUpload: () => !st.saving && this.setState({ uploadOpen: false }),
+      isFileTab: st.tab === 'file', isLinkTab: st.tab === 'link',
+      tabFile: () => this.setState({ tab: 'file' }), tabLink: () => this.setState({ tab: 'link' }),
+      tabFileLine: st.tab === 'file' ? '#16150F' : 'transparent', tabLinkLine: st.tab === 'link' ? '#16150F' : 'transparent',
+      catOptions: [...new Set([...DEFAULT_CATS, ...cats])],
+      fileRef: this.fileRef, pickFiles: () => this.fileRef.current && this.fileRef.current.click(),
+      onFiles: e => { this.addFiles(e.target.files); e.target.value = ''; },
+      onDragOver: e => { e.preventDefault(); if (!st.dragging) this.setState({ dragging: true }); },
+      onDragLeave: () => this.setState({ dragging: false }),
+      onDrop: e => { e.preventDefault(); this.addFiles(e.dataTransfer.files); },
+      dropBorder: st.dragging ? '#D23F22' : '#D5D0C5', dropBg: st.dragging ? '#FBEAE5' : '#FAF9F6',
+      pendingRows: st.pending.map(p => ({ ...p, fileName: p.file.name, sizeLabel: fmtSize(p.file.size),
+        onTitle: e => this.updPending(p.key, 'title', e.target.value), onClient: e => this.updPending(p.key, 'client', e.target.value),
+        onCategory: e => this.updPending(p.key, 'category', e.target.value),
+        onRemove: () => this.setState(s => ({ pending: s.pending.filter(x => x.key !== p.key) })) })),
+      link: st.link, onLinkUrl: setLink('url'), onLinkTitle: setLink('title'), onLinkClient: setLink('client'), onLinkCategory: setLink('category'),
+      saveNote: st.saving ? 'Processing — generating thumbnails…' : st.tab === 'file' && nPending ? `${nPending} file${nPending === 1 ? '' : 's'} · ${fmtSize(st.pending.reduce((s, p) => s + p.file.size, 0))}` : '',
+      saveLabel: st.saving ? 'Saving…' : st.tab === 'file' ? (nPending > 1 ? `Save ${nPending} videos` : 'Save video') : 'Add video',
+      saveDisabled: !canSave || st.saving, saveBg: canSave && !st.saving ? '#16150F' : '#B9B4A9', saveUpload: () => this.saveUpload(),
+      editOpen: !!draft, draft: draft || {}, closeEdit: () => this.setState({ editDraft: null }),
+      onDraftTitle: setDraft('title'), onDraftClient: setDraft('client'), onDraftCategory: setDraft('category'), onDraftDate: setDraft('date'),
+      saveEdit: async () => {
+        const { id, ...rest } = draft; const title = (rest.title || '').trim();
+        if (!title) return this.flash('Title can’t be empty');
+        try { await this.patch(id, { ...rest, title, client: (rest.client || '').trim() || '—' }); this.setState({ editDraft: null }); this.flash('Saved'); }
+        catch (e) { this.flash('Could not save — browser storage may be full'); }
+      },
+      hasToast: !!(st.toast || st.publishing), toast: st.publishing || st.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>

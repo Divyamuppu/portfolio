@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F1EC;color:#16150F;font-family:'Geist',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#16150F}
+a:hover{color:#D23F22}
+button{font:inherit;color:inherit}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:14px clamp(16px,4vw,48px);background:rgba(243,241,236,.92);backdrop-filter:blur(10px);border-bottom:1px solid #E2DED5">
+    <div style="flex:none;width:38px;height:38px;border-radius:50%;overflow:hidden;background:#16150F;color:#F3F1EC;display:grid;place-items:center;font-family:'Bricolage Grotesque';font-weight:700;font-size:14px">
+      <sc-if value="{{ p.hasAvatar }}"><img src="{{ p.avatar }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+      <sc-if value="{{ p.noAvatar }}"><span>{{ p.initials }}</span></sc-if>
+    </div>
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2">
+      <span style="font-family:'Bricolage Grotesque';font-weight:700;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.displayName }}</span>
+      <span style="font-size:12px;color:#6B6860;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.subline }}</span>
+    </div>
+    <sc-if value="{{ p.email }}">
+      <a href="{{ p.mailto }}" style="flex:none;height:40px;padding:0 18px;border-radius:20px;background:#16150F;color:#fff;display:flex;align-items:center;font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap" style-hover="background:#D23F22;color:#fff">Get in touch</a>
+    </sc-if>
+  </header>
+
+  <sc-if value="{{ previewNote }}">
+    <div style="margin:16px clamp(16px,4vw,48px) 0;padding:10px 14px;border-radius:10px;background:#FBEAE5;color:#7A2414;font-size:13px">{{ previewNote }}</div>
+  </sc-if>
+
+  <div style="display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;padding:28px clamp(16px,4vw,48px) 64px;max-width:1680px;width:100%;margin:0 auto">
+    <aside style="order:2;flex:1 1 280px;max-width:380px;position:sticky;top:90px;display:flex;flex-direction:column;border-radius:16px;background:#fff;border:1px solid #E2DED5;overflow:hidden">
+      <div style="position:relative;height:110px;background:#1A1916">
+        <sc-if value="{{ p.hasCover }}"><img src="{{ p.coverSrc }}" ref="{{ hideOnError }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:18px;padding:0 24px 24px">
+        <div style="position:relative;z-index:1;margin-top:-48px;width:104px;height:104px;border-radius:50%;overflow:hidden;background:#16150F;color:#F3F1EC;display:grid;place-items:center;font-family:'Bricolage Grotesque';font-weight:700;font-size:34px;border:4px solid #fff">
+          <sc-if value="{{ p.hasAvatar }}"><img src="{{ p.avatar }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+          <sc-if value="{{ p.noAvatar }}"><span>{{ p.initials }}</span></sc-if>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <h1 style="margin:0;font-family:'Bricolage Grotesque';font-weight:700;font-size:28px;letter-spacing:-0.02em;line-height:1.1">{{ p.displayName }}</h1>
+          <sc-if value="{{ p.pronouns }}"><span style="font-size:14px;color:#6B6860">{{ p.pronouns }}</span></sc-if>
+          <sc-if value="{{ p.headline }}"><span style="font-size:15px;font-weight:500;margin-top:4px">{{ p.headline }}</span></sc-if>
+        </div>
+        <sc-if value="{{ p.location }}">
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+            {{ p.location }}
+          </div>
+        </sc-if>
+        <sc-if value="{{ p.bio }}"><p style="margin:0;font-size:15px;line-height:1.55;white-space:pre-line;text-wrap:pretty">{{ p.bio }}</p></sc-if>
+        <sc-if value="{{ hasContacts }}">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ contacts }}" as="c" hint-placeholder-count="3">
+              <a href="{{ c.href }}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;font-size:14px;text-decoration:none;min-width:0">
+                <span style="flex:none;width:20px;height:20px;display:grid;place-items:center">
+                  <sc-if value="{{ c.isMail }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg></sc-if>
+                  <sc-if value="{{ c.isPhone }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"></path></svg></sc-if>
+                  <sc-if value="{{ c.isIg }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="currentColor"></circle></svg></sc-if>
+                  <sc-if value="{{ c.isIn }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"></path></svg></sc-if>
+                  <sc-if value="{{ c.isYt }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"></rect><path d="m10 9 5 3-5 3z"></path></svg></sc-if>
+                  <sc-if value="{{ c.isWeb }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg></sc-if>
+                </span>
+                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.label }}</span>
+              </a>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding-top:16px;border-top:1px solid #E2DED5">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:'Bricolage Grotesque';font-weight:700;font-size:24px">{{ videoCount }}</span><span style="font-size:12px;color:#6B6860">Videos</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:'Bricolage Grotesque';font-weight:700;font-size:24px">{{ clientCount }}</span><span style="font-size:12px;color:#6B6860">Clients</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <section style="order:1;flex:999 1 360px;min-width:0;display:flex;flex-direction:column;gap:20px">
+      <sc-if value="{{ isEmpty }}">
+        <div style="padding:64px 24px;border:1px dashed #D5D0C5;border-radius:14px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <span style="font-family:'Bricolage Grotesque';font-weight:700;font-size:20px">{{ emptyTitle }}</span>
+          <span style="font-size:14px;color:#6B6860">{{ emptySub }}</span>
+        </div>
+      </sc-if>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px 20px">
+        <sc-for list="{{ videos }}" as="v" hint-placeholder-count="6">
+          <button onClick="{{ v.onPlay }}" onMouseEnter="{{ v.onEnter }}" onMouseLeave="{{ v.onLeave }}" style="display:flex;flex-direction:column;gap:10px;min-width:0;padding:0;border:0;background:transparent;cursor:pointer;text-align:left">
+            <span style="position:relative;display:block;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#1A1916">
+              <sc-if value="{{ v.hasThumb }}"><img src="{{ v.thumb }}" ref="{{ v.thumbRef }}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+              <sc-if value="{{ v.noThumb }}"><span style="position:absolute;inset:0;display:grid;place-items:center;color:#8A867C;font-family:'Geist Mono';font-size:12px;letter-spacing:.08em;text-transform:uppercase">{{ v.client }}</span></sc-if>
+              <sc-if value="{{ v.showPreview }}"><video src="{{ v.src }}" ref="{{ mutedRef }}" loop="{{ true }}" playsInline="{{ true }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video></sc-if>
+              <span style="position:absolute;right:8px;bottom:8px;padding:3px 7px;border-radius:5px;background:rgba(15,14,12,.78);color:#fff;font-family:'Geist Mono';font-size:12px">{{ v.durLabel }}</span>
+            </span>
+            <span style="display:flex;flex-direction:column;gap:3px;min-width:0">
+              <span style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ v.title }}</span>
+              <span style="font-size:13px;color:#6B6860;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ v.metaLabel }}</span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+  </div>
+</div>
+
+<sc-if value="{{ playerOpen }}">
+  <div onClick="{{ closePlayer }}" style="position:fixed;inset:0;z-index:50;background:rgba(12,11,9,.94);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:28px">
+    <div onClick="{{ stop }}" style="width:100%;max-width:1480px;display:flex;flex-wrap:wrap;gap:28px;color:#F3F1EC">
+      <div style="flex:999 1 560px;display:flex;flex-direction:column;gap:18px;min-width:0">
+        <video src="{{ player.src }}" poster="{{ player.thumb }}" autoPlay="{{ true }}" controls="{{ true }}" playsInline="{{ true }}" preload="auto" controlsList="nodownload" onEnded="{{ onEnded }}" style="width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;display:block"></video>
+        <div style="display:flex;gap:16px;align-items:flex-start">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'Geist Mono';font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#F08C74">{{ player.client }}</span>
+            <h2 style="margin:0;font-family:'Bricolage Grotesque';font-weight:700;font-size:30px;letter-spacing:-0.02em;text-wrap:balance">{{ player.title }}</h2>
+            <span style="font-size:14px;color:#BDB8AD">{{ player.metaFull }}</span>
+          </div>
+          <button onClick="{{ closePlayer }}" style="flex:none;width:40px;height:40px;border:0;border-radius:20px;background:#F3F1EC;color:#16150F;cursor:pointer;display:grid;place-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+        </div>
+      </div>
+      <div style="flex:1 1 260px;max-width:340px;display:flex;flex-direction:column;gap:12px;min-width:0">
+        <span style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#BDB8AD">Up next</span>
+        <sc-for list="{{ upNext }}" as="u" hint-placeholder-count="4">
+          <button onClick="{{ u.onPlay }}" style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;align-items:center;padding:6px;border:0;border-radius:10px;background:transparent;color:#F3F1EC;cursor:pointer;text-align:left" style-hover="background:#24221E">
+            <span style="position:relative;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#24221E;display:block">
+              <sc-if value="{{ u.hasThumb }}"><img src="{{ u.thumb }}" ref="{{ u.thumbRef }}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+              <span style="position:absolute;right:4px;bottom:4px;padding:1px 5px;border-radius:4px;background:rgba(0,0,0,.75);font-family:'Geist Mono';font-size:11px">{{ u.durLabel }}</span>
+            </span>
+            <span style="display:flex;flex-direction:column;gap:3px;min-width:0">
+              <span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ u.title }}</span>
+              <span style="font-size:12px;color:#BDB8AD;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ u.client }}</span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;hoverPreview&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Playback&quot;},&quot;autoplayNext&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Playback&quot;}}">
+const fmtDur = s => { if (!s || !isFinite(s)) return '--:--'; s = Math.round(s); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = String(s % 60).padStart(2, '0'); return h ? `${h}:${String(m).padStart(2, '0')}:${x}` : `${String(m).padStart(2, '0')}:${x}`; };
+const fmtDate = d => { const t = d ? new Date(d + 'T00:00:00') : null; return t && !isNaN(t) ? t.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''; };
+const handle = v => v.replace(/^https?:\/\/(www\.)?[^/]+\/(in\/)?/i, '').replace(/^@/, '').replace(/\/$/, '').split('?')[0];
+const abs = v => /^https?:\/\//i.test(v) ? v : 'https://' + v;
+const strip = v => v.replace(/^https?:\/\/(www\.)?/i, '');
+
+class Component extends DCLogic {
+  state = { profile: {}, videos: [], loaded: false, mode: 'live', playingId: null, hoverId: null, bad: {} };
+
+  async componentDidMount() {
+    this._key = e => { if (e.key === 'Escape') this.setState({ playingId: null }); };
+    document.addEventListener('keydown', this._key);
+    try {
+      const r = await fetch('portfolio.json', { cache: 'no-store' });
+      if (!r.ok) throw 0;
+      const d = await r.json();
+      this.setState({ profile: d.profile || {}, videos: d.videos || [], loaded: true, mode: 'live' });
+    } catch (e) { this.loadLocal(); }
+  }
+  componentWillUnmount() { document.removeEventListener('keydown', this._key); }
+  loadLocal() {
+    let profile = {};
+    try { profile = JSON.parse(localStorage.getItem('portfolio-v2-profile') || '{}'); } catch (e) {}
+    const r = indexedDB.open('portfolio-v2', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('videos', { keyPath: 'id' });
+    r.onsuccess = () => {
+      const q = r.result.transaction('videos').objectStore('videos').getAll();
+      q.onsuccess = () => {
+        const vids = (q.result || []).filter(v => !v.deleted && !v.purged).sort((a, b) => (!!b.featured - !!a.featured) || (b.createdAt || 0) - (a.createdAt || 0))
+          .map(v => ({ id: v.id, title: v.title, client: v.client, date: v.date, duration: v.duration, thumb: v.thumb, src: v.blob ? URL.createObjectURL(v.blob) : v.url }));
+        this.setState({ profile, videos: vids, loaded: true, mode: 'local' });
+      };
+    };
+    r.onerror = () => this.setState({ loaded: true, mode: 'local' });
+  }
+  deco(v) {
+    const ok = !!v.thumb && !this.state.bad[v.id];
+    return { ...v, hasThumb: ok, noThumb: !ok, durLabel: fmtDur(v.duration), dateLabel: fmtDate(v.date),
+      metaLabel: [v.client, fmtDate(v.date)].filter(Boolean).join(' · '), metaFull: [fmtDur(v.duration), fmtDate(v.date)].filter(Boolean).join(' · '),
+      showPreview: this.state.hoverId === v.id && (this.props.hoverPreview ?? true),
+      thumbRef: el => { if (!el) return; const bad = () => !this.state.bad[v.id] && this.setState(s => ({ bad: { ...s.bad, [v.id]: true } })); el.onerror = bad; if (el.complete && !el.naturalWidth && el.getAttribute('src')) bad(); },
+      onPlay: () => this.setState({ playingId: v.id, hoverId: null }),
+      onEnter: () => { clearTimeout(this._ht); this._ht = setTimeout(() => this.setState({ hoverId: v.id }), 450); },
+      onLeave: () => { clearTimeout(this._ht); this.state.hoverId && this.setState({ hoverId: null }); } };
+  }
+  renderVals() {
+    const st = this.state, P = st.profile || {}, vids = st.videos;
+    const init = (P.name || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    const contacts = [];
+    if (P.email) contacts.push({ isMail: true, label: P.email, href: 'mailto:' + P.email });
+    if (P.phone) contacts.push({ isPhone: true, label: P.phone, href: 'tel:' + P.phone.replace(/\s/g, '') });
+    if (P.instagram) contacts.push({ isIg: true, label: '@' + handle(P.instagram), href: /^https?:/i.test(P.instagram) ? P.instagram : 'https://instagram.com/' + handle(P.instagram) });
+    if (P.linkedin) contacts.push({ isIn: true, label: handle(P.linkedin), href: /^https?:/i.test(P.linkedin) ? P.linkedin : 'https://linkedin.com/in/' + handle(P.linkedin) });
+    if (P.youtube) contacts.push({ isYt: true, label: strip(P.youtube), href: abs(P.youtube) });
+    if (P.website) contacts.push({ isWeb: true, label: strip(P.website), href: abs(P.website) });
+    (P.links || []).forEach(l => l.url && contacts.push({ isWeb: true, label: l.label || strip(l.url), href: abs(l.url) }));
+    const playing = vids.find(v => v.id === st.playingId);
+    const idx = playing ? vids.indexOf(playing) : -1;
+    const upNext = playing ? [...vids.slice(idx + 1), ...vids.slice(0, idx)] : [];
+    const coverSrc = P.cover || (vids[0] && vids[0].thumb);
+    return {
+      p: { ...P, displayName: P.name || 'Portfolio', initials: init, hasAvatar: !!P.avatar, noAvatar: !P.avatar, hasCover: !!coverSrc, coverSrc,
+        subline: P.headline || P.location || 'Video portfolio', mailto: 'mailto:' + (P.email || '') },
+      contacts, hasContacts: contacts.length > 0,
+      videoCount: vids.length, clientCount: new Set(vids.map(v => v.client).filter(c => c && c !== '—')).size,
+      previewNote: st.loaded && st.mode === 'local' ? 'Preview from this browser. Clients will see the published version (portfolio.json).' : '',
+      isEmpty: st.loaded && !vids.length, emptyTitle: 'No videos yet', emptySub: 'Check back soon.',
+      videos: vids.map(v => this.deco(v)),
+      hideOnError: el => { if (el) el.onerror = () => { el.style.display = 'none'; }; },
+      mutedRef: el => { if (el) { el.muted = true; const pr = el.play(); pr && pr.catch(() => {}); } },
+      playerOpen: !!playing, player: playing ? this.deco(playing) : {}, upNext: upNext.slice(0, 12).map(v => this.deco(v)),
+      onEnded: () => { if ((this.props.autoplayNext ?? true) && upNext[0]) this.setState({ playingId: upNext[0].id }); },
+      closePlayer: () => this.setState({ playingId: null }), stop: e => e.stopPropagation(),
+    };
+  }
+}
+</script>
+</body>
+</html>
