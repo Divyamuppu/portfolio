@@ -1,0 +1,87 @@
+*{box-sizing:border-box}
+body{margin:0;background:#F3F1EC;color:#16150F;font-family:'Geist',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#16150F}
+a:hover{color:#D23F22}
+button{font:inherit;color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid #D23F22;outline-offset:3px;border-radius:6px}
+
+.page{min-height:100vh;display:flex;flex-direction:column}
+
+/* Header */
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:14px clamp(16px,4vw,48px);background:rgba(243,241,236,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #E2DED5}
+.top-text{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}
+.top-name{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:700;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-sub{font-size:12px;color:#6B6860;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cta{flex:none;height:40px;padding:0 18px;border-radius:20px;background:#16150F;color:#fff;display:flex;align-items:center;font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap}
+.cta:hover{background:#D23F22;color:#fff}
+
+.avatar{flex:none;border-radius:50%;overflow:hidden;background:#16150F;color:#F3F1EC;display:grid;place-items:center;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:700}
+.avatar-sm{width:38px;height:38px;font-size:15px}
+.avatar-lg{position:relative;z-index:1;margin-top:-48px;width:104px;height:104px;font-size:36px;border:4px solid #fff}
+
+/* Layout */
+.layout{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;padding:28px clamp(16px,4vw,48px) 64px;max-width:1680px;width:100%;margin:0 auto}
+.card{order:2;flex:1 1 280px;max-width:380px;position:sticky;top:90px;display:flex;flex-direction:column;border-radius:16px;background:#fff;border:1px solid #E2DED5;overflow:hidden}
+.cover{position:relative;height:110px;background:#1A1916}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.card-body{display:flex;flex-direction:column;gap:18px;padding:0 24px 24px}
+.who{display:flex;flex-direction:column;gap:4px}
+.who h1{margin:0;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:700;font-size:28px;letter-spacing:-0.02em;line-height:1.1}
+.headline{font-size:15px;font-weight:500;margin-top:4px}
+.row{display:flex;align-items:center;gap:10px;font-size:14px}
+.contacts{display:flex;flex-direction:column;gap:12px}
+.contacts:empty{display:none}
+.contact{display:flex;align-items:center;gap:12px;font-size:14px;text-decoration:none;min-width:0}
+.contact span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.contact-ico{flex:none;width:20px;height:20px;display:grid;place-items:center}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding-top:16px;border-top:1px solid #E2DED5}
+.stats div{display:flex;flex-direction:column;gap:2px}
+.stat-n{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:700;font-size:24px}
+.stat-l{font-size:12px;color:#6B6860}
+
+/* Work */
+.work{order:1;flex:999 1 360px;min-width:0;display:flex;flex-direction:column;gap:20px}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:36px;padding:0 14px;border-radius:18px;border:1px solid #E2DED5;background:#fff;cursor:pointer;font-size:14px;font-weight:500;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.chip:hover{border-color:#16150F}
+.chip[aria-pressed="true"]{background:#16150F;border-color:#16150F;color:#fff}
+.chip-n{font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;opacity:.6}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px 20px}
+.tile{display:flex;flex-direction:column;gap:10px;min-width:0;text-decoration:none;color:#16150F}
+.tile:hover{color:#16150F}
+.media{position:relative;display:block;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#1A1916;transform:translateZ(0)}
+.thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s ease,opacity .4s ease}
+.tile:hover .thumb{transform:scale(1.03)}
+.tile.playing .thumb{opacity:0}
+/* Preview player: scaled up slightly to crop YouTube's title bar and logo; never takes clicks. */
+.player{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .4s ease}
+.player iframe,.player>div{position:absolute;top:50%;left:50%;width:120%;height:120%;transform:translate(-50%,-50%);border:0}
+.tile.playing .player{opacity:1}
+.badge{position:absolute;right:8px;bottom:8px;z-index:2;display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:rgba(15,14,12,.78);color:#fff;font-family:'Geist Mono',ui-monospace,monospace;font-size:12px}
+.badge svg{flex:none}
+.watch{position:absolute;inset:0;z-index:2;display:grid;place-items:center;opacity:0;transition:opacity .25s ease;background:rgba(12,11,9,.28)}
+.watch span{display:flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:20px;background:#fff;color:#16150F;font-size:14px;font-weight:600}
+.tile:hover .watch,.tile:focus-visible .watch{opacity:1}
+.tile-meta{display:flex;flex-direction:column;gap:3px;min-width:0}
+.tile-title{font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile-sub{font-size:13px;color:#6B6860;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.empty{padding:64px 24px;border:1px dashed #D5D0C5;border-radius:14px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.empty-title{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:700;font-size:20px}
+.empty-sub{font-size:14px;color:#6B6860}
+.noscript{padding:24px;text-align:center}
+
+@media (max-width:640px){
+  .card{position:static;max-width:none}
+  .watch{display:none}
+}
+@media (hover:none){
+  .watch{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .thumb,.player,.watch{transition:none}
+  .tile:hover .thumb{transform:none}
+}
